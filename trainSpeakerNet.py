@@ -1,7 +1,6 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 
-User
 import sys, time, os, argparse
 import yaml
 import numpy
@@ -305,4 +304,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main() 
+    main()
