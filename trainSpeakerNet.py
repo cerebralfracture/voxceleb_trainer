@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 
+User
 import sys, time, os, argparse
 import yaml
 import numpy
@@ -234,40 +235,43 @@ def main_worker(gpu, ngpus_per_node, args):
             f.write('%s'%args)
 
     ## Core training script
-for it in range(it, args.max_epoch + 1):
-    train_sampler.set_epoch(it)
-    clr = [x['lr'] for x in trainer.__optimizer__.param_groups]
-    loss, traineer = trainer.train_network(train_loader, verbose=(args.gpu == 0))
+    for it in range(it,args.max_epoch+1):
 
-    if args.gpu == 0:
-        print('\n', time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, Acc {:2.2f}, LOSS {:f}, LR {:f}".format(it, traineer, loss, max(clr)))
-        scorefile.write("{:d} {:2.2f} {:f} {:f}\n".format(it, traineer, loss, max(clr)))
+        train_sampler.set_epoch(it)
 
-    if it % args.test_interval == 0:
-        sc, lab, _ = trainer.evaluateFromList(**vars(args))
+        clr = [x['lr'] for x in trainer.__optimizer__.param_groups]
 
-        result = None  # Инициализация переменной result
+        loss, traineer = trainer.train_network(train_loader, verbose=(args.gpu == 0))
 
-if args.gpu == 0:
-    result = tuneThresholdfromScore(sc, lab, [1, 0.1])
+        if args.gpu == 0:
+            print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, Acc {:2.2f}, LOSS {:f}, LR {:f}".format(it, traineer, loss, max(clr)))
+            scorefile.write("{:d} {:2.2f} {:f} {:f}\n".format(it, traineer, loss, max(clr)))
 
-    fnrs, fprs, thresholds = ComputeErrorRates(sc, lab)
-    mindcf, threshold = ComputeMinDcf(fnrs, fprs, thresholds, args.dcf_p_target, args.dcf_c_miss, args.dcf_c_fa)
+        if it % args.test_interval == 0:
 
-    eers.append(result[1])
+            sc, lab, _ = trainer.evaluateFromList(**vars(args))
 
-    print('\n')
-    print('\n Validation: ',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, EER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
-    print('\n')
-    #scorefile.write("Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}\n".format(it, result[1], mindcf))
+            if args.gpu == 0:
+                
+                result = tuneThresholdfromScore(sc, lab, [1, 0.1])
 
-    trainer.saveParameters(args.model_save_path+"/model%09d.model"%it)
+                fnrs, fprs, thresholds = ComputeErrorRates(sc, lab)
+                mindcf, threshold = ComputeMinDcf(fnrs, fprs, thresholds, args.dcf_p_target, args.dcf_c_miss, args.dcf_c_fa)
 
-    with open(args.model_save_path+"/model%09d.eer"%it, 'w') as eerfile:
-        eerfile.write('{:2.4f}'.format(result[1]))
-    scorefile2.write('{:2.4f}'.format(result[1])+'\n')
-    scorefile.flush()
-    scorefile2.flush()
+                eers.append(result[1])
+
+                print('\n')
+                print('\n Validation: ',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, EER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
+                print('\n')
+                #scorefile.write("Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}\n".format(it, result[1], mindcf))
+
+                trainer.saveParameters(args.model_save_path+"/model%09d.model"%it)
+
+                with open(args.model_save_path+"/model%09d.eer"%it, 'w') as eerfile:
+                    eerfile.write('{:2.4f}'.format(result[1]))
+                scorefile2.write('{:2.4f}'.format(result[1])+'\n')
+                scorefile.flush()
+                scorefile2.flush()
 
     if args.gpu == 0:
         scorefile.close()
@@ -301,4 +305,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main() 
