@@ -36,13 +36,13 @@ parser.add_argument('--seed',           type=int,   default=10,     help='Seed f
 
 ## Training details
 parser.add_argument('--test_interval',  type=int,   default=10,     help='Test and save every [test_interval] epochs')
-parser.add_argument('--max_epoch',      type=int,   default=150,    help='Maximum number of epochs')
+parser.add_argument('--max_epoch',      type=int,   default=100,    help='Maximum number of epochs')
 parser.add_argument('--trainfunc',      type=str,   default="",     help='Loss function')
 
 ## Optimizer
 parser.add_argument('--optimizer',      type=str,   default="adam", help='sgd or adam')
 parser.add_argument('--scheduler',      type=str,   default="steplr", help='Learning rate scheduler')
-parser.add_argument('--lr',             type=float, default=0.0001,  help='Learning rate')
+parser.add_argument('--lr',             type=float, default=0.001,  help='Learning rate')
 parser.add_argument("--lr_decay",       type=float, default=0.95,   help='Learning rate decay every [test_interval] epochs')
 parser.add_argument('--weight_decay',   type=float, default=0,      help='Weight decay in the optimizer')
 
