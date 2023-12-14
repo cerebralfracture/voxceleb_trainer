@@ -246,26 +246,28 @@ for it in range(it, args.max_epoch + 1):
     if it % args.test_interval == 0:
         sc, lab, _ = trainer.evaluateFromList(**vars(args))
 
-        if args.gpu == 0:
-            result = tuneThresholdfromScore(sc, lab, [1, 0.1])
+        result = None  # Инициализация переменной result
 
-            fnrs, fprs, thresholds = ComputeErrorRates(sc, lab)
-            mindcf, threshold = ComputeMinDcf(fnrs, fprs, thresholds, args.dcf_p_target, args.dcf_c_miss, args.dcf_c_fa)
+if args.gpu == 0:
+    result = tuneThresholdfromScore(sc, lab, [1, 0.1])
 
-            eers.append(result[1])
+    fnrs, fprs, thresholds = ComputeErrorRates(sc, lab)
+    mindcf, threshold = ComputeMinDcf(fnrs, fprs, thresholds, args.dcf_p_target, args.dcf_c_miss, args.dcf_c_fa)
 
-            print('\n')
-            print('\n Validation: ', time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, EER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
-            print('\n')
+    eers.append(result[1])
 
-            last_result = result  # Запоминаем текущий результат
-            trainer.saveParameters(args.model_save_path + "/model%09d.model" % it)
+    print('\n')
+    print('\n Validation: ',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, EER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
+    print('\n')
+    #scorefile.write("Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}\n".format(it, result[1], mindcf))
 
-            with open(args.model_save_path + "/model%09d.eer" % it, 'w') as eerfile:
-                eerfile.write('{:2.4f}'.format(result[1]))
-            scorefile2.write('{:2.4f}'.format(result[1]) + '\n')
-            scorefile.flush()
-            scorefile2.flush()
+    trainer.saveParameters(args.model_save_path+"/model%09d.model"%it)
+
+    with open(args.model_save_path+"/model%09d.eer"%it, 'w') as eerfile:
+        eerfile.write('{:2.4f}'.format(result[1]))
+    scorefile2.write('{:2.4f}'.format(result[1])+'\n')
+    scorefile.flush()
+    scorefile2.flush()
 
     if args.gpu == 0:
         scorefile.close()
