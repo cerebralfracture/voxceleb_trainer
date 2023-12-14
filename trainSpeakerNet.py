@@ -164,13 +164,15 @@ def main_worker(gpu, ngpus_per_node, args):
     modelfiles = glob.glob('%s/model0*.model'%args.model_save_path)
     modelfiles.sort()
 
-    if(args.initial_model != ""):
+    if args.initial_model != "":
         trainer.loadParameters(args.initial_model)
-        print("Model {} loaded!".format(args.initial_model))
-    elif len(modelfiles) >= 1:
-        trainer.loadParameters(modelfiles[-1])
-        print("Model {} loaded from previous state!".format(modelfiles[-1]))
-        it = int(os.path.splitext(os.path.basename(modelfiles[-1]))[0][5:]) + 1
+        print("Model {} loaded for fine-tuning!".format(args.initial_model))
+    else:
+        modelfiles = glob.glob('%s/model0*.model' % args.model_save_path)
+        modelfiles.sort()
+        if len(modelfiles) >= 1:
+            trainer.loadParameters(modelfiles[-1])
+            print("Model {} loaded from previous state for fine-tuning!".format(modelfiles[-1]))
 
     for ii in range(1,it):
         trainer.__scheduler__.step()
