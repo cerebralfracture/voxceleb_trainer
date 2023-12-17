@@ -305,7 +305,7 @@ def main():
     if args.distributed:
         mp.spawn(main_worker, nprocs=n_gpus, args=(n_gpus, args))
     else:
-        main_worker(101, None, args)
+        main_worker(0, None, args)
 
 
 if __name__ == '__main__':
