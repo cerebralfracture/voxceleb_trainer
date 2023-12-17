@@ -81,7 +81,7 @@ class ModelTrainer(object):
 
         stepsize = loader.batch_size
 
-        counter = 101
+        counter = 0
         index = 0
         loss = 0
         top1 = 0
