@@ -80,7 +80,6 @@ class ModelTrainer(object):
         self.__model__.train()
 
         stepsize = loader.batch_size
-        print(loader)
 
         counter = 0
         index = 0
