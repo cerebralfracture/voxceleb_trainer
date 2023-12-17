@@ -161,19 +161,14 @@ def main_worker(gpu, ngpus_per_node, args):
     trainer     = ModelTrainer(s, **vars(args))
 
     ## Load model weights
-    modelfiles = glob.glob('%s/model0*.model'%args.model_save_path)
-    modelfiles.sort()
-
-    if(args.initial_model != ""):
-        trainer.loadParameters(args.initial_model)
-        print("Model {} loaded!".format(args.initial_model))
-    elif len(modelfiles) >= 1:
-        trainer.loadParameters(modelfiles[-1])
-        print("Model {} loaded from previous state!".format(modelfiles[-1]))
-        it = int(os.path.splitext(os.path.basename(modelfiles[-1]))[0][5:]) + 1
-
-    for ii in range(1,it):
-        trainer.__scheduler__.step()
+    if args.resume:
+    checkpoint = torch.load(args.resume)
+    model_state_dict = checkpoint['model_state_dict']
+    optimizer_state_dict = checkpoint['optimizer_state_dict']
+    trainer.__S__.load_state_dict(model_state_dict)
+    trainer.__optimizer__.load_state_dict(optimizer_state_dict)
+    start_epoch = checkpoint['epoch'] + 1
+    print(f"Resuming training from epoch {start_epoch}")
 
     ## Evaluation code - must run on single GPU
     if args.eval == True:
@@ -237,9 +232,9 @@ def main_worker(gpu, ngpus_per_node, args):
     for it in range(it,args.max_epoch+1):
 
         train_sampler.set_epoch(it)
-
+        
         clr = [x['lr'] for x in trainer.__optimizer__.param_groups]
-
+        
         loss, traineer = trainer.train_network(train_loader, verbose=(args.gpu == 0))
 
         if args.gpu == 0:
@@ -264,7 +259,7 @@ def main_worker(gpu, ngpus_per_node, args):
                 print('\n')
                 #scorefile.write("Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}\n".format(it, result[1], mindcf))
 
-                trainer.saveParameters(args.model_save_path+"/model%09d.model"%it)
+                trainer.saveParameters(args.model_save_path + "/model%09d.model" % it)
 
                 with open(args.model_save_path+"/model%09d.eer"%it, 'w') as eerfile:
                     eerfile.write('{:2.4f}'.format(result[1]))
