@@ -60,7 +60,7 @@ parser.add_argument('--dcf_c_miss',     type=float, default=1,      help='Cost o
 parser.add_argument('--dcf_c_fa',       type=float, default=1,      help='Cost of a spurious detection')
 
 ## Load and save
-parser.add_argument('--initial_model',  type=str,   default="",     help='Initial model weights')
+parser.add_argument('--initial_model',  type=str,   default="exps/ResNetSE34S_AP/model/model000000100.model",     help='Initial model weights')
 parser.add_argument('--save_path',      type=str,   default="exps/exp1", help='Path for model and logs')
 
 ## Training and test data
