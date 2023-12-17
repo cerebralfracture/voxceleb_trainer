@@ -127,7 +127,7 @@ class ModelTrainer(object):
         if self.lr_step == "epoch":
             self.__scheduler__.step()
 
-        return (loss / counter, top1 / counter)
+        return (loss / max(1, counter), top1 / max(1, counter))
 
     ## ===== ===== ===== ===== ===== ===== ===== =====
     ## Evaluate from list
