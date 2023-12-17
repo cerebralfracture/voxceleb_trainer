@@ -243,11 +243,8 @@ def main_worker(gpu, ngpus_per_node, args):
         loss, traineer = trainer.train_network(train_loader, verbose=(args.gpu == 0))
 
         if args.gpu == 0:
-            if counter > 0:  # Добавьте эту проверку перед делением
-                print('\n', time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, Acc {:2.2f}, LOSS {:f}, LR {:f}".format(it, traineer, loss, max(clr)))
-                scorefile.write("{:d} {:2.2f} {:f} {:f}\n".format(it, traineer, loss, max(clr)))
-            else:
-                print('\n', time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, No samples for evaluation.".format(it))
+            print('\n', time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, Acc {:2.2f}, LOSS {:f}, LR {:f}".format(it, traineer, loss, max(clr)))
+            scorefile.write("{:d} {:2.2f} {:f} {:f}\n".format(it, traineer, loss, max(clr)))
 
         if it % args.test_interval == 0:
 
