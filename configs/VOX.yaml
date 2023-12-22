@@ -1,7 +1,7 @@
-model: VGGVox
+model: ResNetSE34V2
 log_input: True
 encoder_type: SAP
 trainfunc: angleproto
 save_path: exps/VGGVox
 nPerSpeaker: 2
-batch_size: 200
+batch_size: 10
