@@ -28,7 +28,7 @@ parser.add_argument('--config',         type=str,   default=None,   help='Config
 ## Data loader
 parser.add_argument('--max_frames',     type=int,   default=200,    help='Input length to the network for training')
 parser.add_argument('--eval_frames',    type=int,   default=300,    help='Input length to the network for testing 0 uses the whole files')
-parser.add_argument('--batch_size',     type=int,   default=200,    help='Batch size, number of speakers per batch')
+parser.add_argument('--batch_size',     type=int,   default=30,    help='Batch size, number of speakers per batch')
 parser.add_argument('--max_seg_per_spk', type=int,  default=500,    help='Maximum number of utterances per speaker per epoch')
 parser.add_argument('--nDataLoaderThread', type=int, default=5,     help='Number of loader threads')
 parser.add_argument('--augment',        type=bool,  default=False,  help='Augment input')
@@ -36,13 +36,13 @@ parser.add_argument('--seed',           type=int,   default=10,     help='Seed f
 
 ## Training details
 parser.add_argument('--test_interval',  type=int,   default=10,     help='Test and save every [test_interval] epochs')
-parser.add_argument('--max_epoch',      type=int,   default=100,    help='Maximum number of epochs')
+parser.add_argument('--max_epoch',      type=int,   default=150,    help='Maximum number of epochs')
 parser.add_argument('--trainfunc',      type=str,   default="",     help='Loss function')
 
 ## Optimizer
 parser.add_argument('--optimizer',      type=str,   default="adam", help='sgd or adam')
 parser.add_argument('--scheduler',      type=str,   default="steplr", help='Learning rate scheduler')
-parser.add_argument('--lr',             type=float, default=0.00001,  help='Learning rate')
+parser.add_argument('--lr',             type=float, default=0.0001,  help='Learning rate')
 parser.add_argument("--lr_decay",       type=float, default=0.95,   help='Learning rate decay every [test_interval] epochs')
 parser.add_argument('--weight_decay',   type=float, default=0,      help='Weight decay in the optimizer')
 
@@ -164,13 +164,22 @@ def main_worker(gpu, ngpus_per_node, args):
     modelfiles = glob.glob('%s/model0*.model'%args.model_save_path)
     modelfiles.sort()
 
-    if(args.initial_model != ""):
-        trainer.loadParameters(args.initial_model)
-        print("Model {} loaded!".format(args.initial_model))
-    elif len(modelfiles) >= 1:
-        trainer.loadParameters(modelfiles[-1])
-        print("Model {} loaded from previous state!".format(modelfiles[-1]))
-        it = int(os.path.splitext(os.path.basename(modelfiles[-1]))[0][5:]) + 1
+    if args.initial_model != "":
+      print(f"Loading initial model from: {args.initial_model}")
+      trainer.loadParameters(args.initial_model)
+      print("Model loaded!")
+    else:
+      modelfiles = glob.glob('%s/model0*.model' % args.model_save_path)
+      modelfiles.sort()
+      if len(modelfiles) >= 1:
+          print(f"Loading model from the latest saved state: {modelfiles[-1]}")
+          trainer.loadParameters(modelfiles[-1])
+          print("Model loaded from the latest saved state!")
+          it = int(os.path.splitext(os.path.basename(modelfiles[-1]))[0][5:]) + 1
+      else:
+          print("No initial model or saved model found.")
+
+
 
     for ii in range(1,it):
         trainer.__scheduler__.step()
