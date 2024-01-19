@@ -1,7 +1,7 @@
-model: ResNetSE34V2
+model: ResNetSE34L
 log_input: True
 encoder_type: SAP
 trainfunc: angleproto
-save_path: exps/VGGVox
+save_path: exps/ResNetSE34S_AP
 nPerSpeaker: 2
-batch_size: 10
+batch_size: 30
